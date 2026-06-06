@@ -9,7 +9,7 @@ The following overview compares the systems and core features between the origin
 
 | Feature | Original | This Fork |
 | :--- | :--- | :--- |
-| **Discord Integration** | Lacked native capability; relied on external scripts. | `DiscordWebhookService` integrated natively. Supports automated alerts for status changes, rare drops (with screenshots), and live-pings. |
+| **Discord Integration** | Lacked native capability. | `DiscordWebhookService` integrated natively. Supports automated alerts for status changes, rare drops (with screenshots), and live-pings. |
 | **Headless Mode** | Full-screen rendering; high CPU/GPU demand per instance. | Introduced a 1x1 hidden pixel viewport, forcing Flash to bypass geometry/blitting and significantly reducing resource consumption. |
 | **Script Scheduling** | Required manual initialization and supervision. | Added `ScriptSchedulerViewModel` for autonomous script queuing via `QueueScriptMessage` at specific dates and times. |
 | **UI Environment** | Spawned multiple external Win32 windows. | Embedded `EmbeddedMainWindow.xaml` with dynamic SWF patching for a unified, tabbed WPF interface. |
