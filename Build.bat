@@ -1,0 +1,1 @@
+pwsh ./Build-Skua.ps1 -Parallel
