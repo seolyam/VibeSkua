@@ -386,3 +386,4 @@ Skua.Installer/FFDecComponentsGenerated.wxs
 Skua.Installer/ComponentsGenerated.wxs
 Skua.Installer/FFDecComponentsGenerated.wxs
 .aider*
+!Skua.AS3/skua/bin/skua.swf
