@@ -1,4 +1,4 @@
-# Skua Enhanced
+# VibeSkua
 
 A feature-rich, high-performance derivative of [auqw/skua](https://github.com/auqw/skua), engineered for advanced automation, stability, and streamlined multi-client management.
 
