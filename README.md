@@ -22,7 +22,6 @@ The following overview compares the systems and core features between the origin
 * **GitHub Script Caching Engine:** Engineered `ScriptDates.json` to store metadata and track SHA hashes. Intelligent API querying conserves rate limits and provides graceful UI fallbacks on connection failure.
 * **Background Connection Stability:** Repositions inactive clients off-screen and uses a `WPF DispatcherTimer` to ping the `isLoggedIn` COM interface every 500ms, preventing OS-level socket throttling.
 * **Active Memory Management:** Introduced `MemoryUtils.cs` to periodically trim the application’s working set, ensuring RAM stability during long, multi-day farming sessions.
-* **Client Version Validation:** Removed intrusive update popups within `ScriptManager.cs` to ensure completely uninterrupted, headless automation.
 
 ---
 
