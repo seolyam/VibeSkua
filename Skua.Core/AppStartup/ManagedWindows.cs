@@ -12,7 +12,7 @@ public class ManagedWindows
 
         //windowService.RegisterManagedWindow("About", s.GetRequiredService<AboutViewModel>());
         windowService.RegisterManagedWindow("Scripts", s.GetRequiredService<ScriptLoaderViewModel>());
-        windowService.RegisterManagedWindow("Loader", s.GetRequiredService<ScriptLoaderViewModel>());
+        windowService.RegisterManagedWindow("Script Loader", s.GetRequiredService<ScriptLoaderViewModel>());
         windowService.RegisterManagedWindow("Scheduler", s.GetRequiredService<ScriptSchedulerViewModel>());
         windowService.RegisterManagedWindow("Script Repo", s.GetRequiredService<ScriptRepoViewModel>());
 

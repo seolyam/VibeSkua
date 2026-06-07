@@ -16,7 +16,7 @@ internal class MainMenu
         {
             new("Scripts", new List<MainMenuItemViewModel>()
             {
-                new("Loader"),
+                new("Script Loader"),
                 new("Scheduler")
             }),
             new("Options", new List<MainMenuItemViewModel>()
