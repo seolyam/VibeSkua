@@ -34,7 +34,7 @@
                                             ContentSource="Header"
                                             Margin="10,5"/>
                                     </Border>
-                                    <Border Name="SelectionIndicator" Height="3" Background="#007ACC" VerticalAlignment="Bottom" Margin="2,0" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                                    <Border Name="SelectionIndicator" Height="3" Background="{DynamicResource PrimaryHueMidBrush}" VerticalAlignment="Bottom" Margin="2,0" Opacity="0" RenderTransformOrigin="0.5,0.5">
                                         <Border.RenderTransform>
                                             <ScaleTransform ScaleX="0" />
                                         </Border.RenderTransform>
@@ -93,7 +93,7 @@
             </TabControl.Resources>
             <TabItem x:Name="AddTabItem" Cursor="Hand" PreviewMouseLeftButtonDown="AddTabItem_PreviewMouseLeftButtonDown">
                 <TabItem.Header>
-                    <TextBlock Text="+" FontSize="20" FontWeight="Bold" Margin="5,-2,5,0" Foreground="#007ACC" />
+                    <TextBlock Text="+" FontSize="20" FontWeight="Bold" Margin="5,-2,5,0" Foreground="{DynamicResource PrimaryHueMidBrush}" />
                 </TabItem.Header>
                 <TabItem.Template>
                     <ControlTemplate TargetType="TabItem">

@@ -102,7 +102,6 @@ namespace Skua.App.WPF
             public IntPtr ChildHwnd { get; set; } = IntPtr.Zero;
         }
 
-        private int _tabCount = 0;
         private string _initialArgs = "";
         private readonly Dictionary<TabItem, TabInfo> _tabs = new();
         private System.Windows.Threading.DispatcherTimer _repositionTimer;
@@ -270,10 +269,11 @@ namespace Skua.App.WPF
 
             // Get HostContainer position in screen coordinates
             Point screenTL = HostContainer.PointToScreen(new Point(0, 0));
+            Point screenBR = HostContainer.PointToScreen(new Point(HostContainer.ActualWidth, HostContainer.ActualHeight));
             int x = (int)screenTL.X;
             int y = (int)screenTL.Y;
-            int w = Math.Max((int)HostContainer.ActualWidth, 1);
-            int h = Math.Max((int)HostContainer.ActualHeight, 1);
+            int w = Math.Max((int)Math.Round(screenBR.X - screenTL.X), 1);
+            int h = Math.Max((int)Math.Round(screenBR.Y - screenTL.Y), 1);
 
             IntPtr activeChildHwnd = IntPtr.Zero;
             if (_tabs.TryGetValue(selectedTab, out TabInfo activeInfo) && activeInfo.ChildHwnd != IntPtr.Zero)
@@ -426,11 +426,24 @@ namespace Skua.App.WPF
 
         private void AddNewInstance(string extraArgs)
         {
-            _tabCount++;
             if (string.IsNullOrWhiteSpace(extraArgs))
                 extraArgs = "";
 
-            string tabName = "Skua " + _tabCount;
+            int availableId = 1;
+            var currentTitles = InstancesTabControl.Items.OfType<TabItem>()
+                .Select(t => t.Header as StackPanel)
+                .Where(p => p != null)
+                .Select(p => p.Children.OfType<TextBlock>().FirstOrDefault(tb => tb.Text != "✕")?.Text)
+                .Where(t => t != null && t.StartsWith("Skua "))
+                .Select(t => { int.TryParse(t.Substring(5), out int id); return id; })
+                .ToList();
+
+            while (currentTitles.Contains(availableId))
+            {
+                availableId++;
+            }
+            
+            string tabName = "Skua " + availableId;
             var match = Regex.Match(extraArgs, @"(?:--user|-u)\s+""?([^""\s]+)""?");
             if (match.Success) tabName = match.Groups[1].Value;
 
