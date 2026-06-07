@@ -8,6 +8,6 @@ dotnet build Skua.sln -c Release -p:WarningLevel=0 --nologo
 echo =========================================
 echo Build Complete!
 echo You can find your build inside
-echo the newly created Build folder!
+echo the newly created /Build folder!
 echo =========================================
 pause
