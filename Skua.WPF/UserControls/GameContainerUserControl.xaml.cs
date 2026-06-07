@@ -97,6 +97,14 @@ public partial class GameContainerUserControl : UserControl
         recipient.gameContainer.Child = message.Flash;
     }
 
+    private bool _isGridView = false;
+
+    public void SetGridView(bool isGrid)
+    {
+        _isGridView = isGrid;
+        UpdateDashboardVisibility();
+    }
+
     private void RootGrid_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         if (e.NewSize.Width == 0 || e.NewSize.Height == 0) return;
@@ -115,8 +123,18 @@ public partial class GameContainerUserControl : UserControl
             gameContainer.Height = e.NewSize.Width / aspect;
         }
         
-        // Ensure the Dashboard never overlaps the game
-        double emptySpace = (e.NewSize.Width - gameContainer.Width) / 2.0;
+        UpdateDashboardVisibility();
+    }
+
+    private void UpdateDashboardVisibility()
+    {
+        if (_isGridView)
+        {
+            DashboardContainer.Visibility = Visibility.Hidden;
+            return;
+        }
+
+        double emptySpace = (RootGrid.ActualWidth - gameContainer.Width) / 2.0;
         if (emptySpace > 20)
         {
             DashboardContainer.MaxWidth = emptySpace - 10; // keep a 10px margin

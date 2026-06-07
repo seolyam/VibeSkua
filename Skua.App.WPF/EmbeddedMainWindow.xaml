@@ -12,8 +12,8 @@
     mc:Ignorable="d">
     <Grid>
         <DockPanel>
-            <controls:MainMenuUserControl Panel.ZIndex="10" DockPanel.Dock="Top" />
-            <controls:GameContainerUserControl />
+            <controls:MainMenuUserControl x:Name="MainMenuCtrl" Panel.ZIndex="10" DockPanel.Dock="Top" />
+            <controls:GameContainerUserControl x:Name="GameContainerCtrl" />
         </DockPanel>
     </Grid>
 </Window>

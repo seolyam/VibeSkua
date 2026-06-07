@@ -106,6 +106,8 @@ namespace Skua.App.WPF
         private readonly Dictionary<TabItem, TabInfo> _tabs = new();
         private System.Windows.Threading.DispatcherTimer _repositionTimer;
         private bool _isClosing = false;
+        private bool _isGridViewEnabled = false;
+        private TabItem _lastSelectedTab;
         private IntPtr _hostHwnd = IntPtr.Zero;
         private TabInfo _prewarmedTabInfo = null;
 
@@ -225,6 +227,73 @@ namespace Skua.App.WPF
         #endregion
 
         #region Tab Switching & Positioning
+        private const int WM_SKUA_GRIDVIEW = 0x0400 + 444;
+
+        private void GridViewBorder_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+            _isGridViewEnabled = !_isGridViewEnabled;
+            UpdateGridViewBorderColor();
+            
+            foreach (var info in _tabs.Values)
+            {
+                if (info.ChildHwnd != IntPtr.Zero)
+                {
+                    PostMessage(info.ChildHwnd, WM_SKUA_GRIDVIEW, new IntPtr(_isGridViewEnabled ? 1 : 0), IntPtr.Zero);
+                }
+            }
+
+            // Deselect tabs if in Grid View so it doesn't look like a single tab is active
+            if (_isGridViewEnabled)
+            {
+                if (InstancesTabControl.SelectedItem != null && InstancesTabControl.SelectedItem != AddTabItem)
+                    _lastSelectedTab = InstancesTabControl.SelectedItem as TabItem;
+                InstancesTabControl.SelectedItem = null;
+            }
+            else
+            {
+                if (_lastSelectedTab != null && InstancesTabControl.Items.Contains(_lastSelectedTab))
+                {
+                    InstancesTabControl.SelectedItem = _lastSelectedTab;
+                }
+                else
+                {
+                    var firstTab = InstancesTabControl.Items.OfType<TabItem>().FirstOrDefault(t => t != AddTabItem);
+                    if (firstTab != null)
+                        InstancesTabControl.SelectedItem = firstTab;
+                }
+            }
+
+            DoReposition();
+        }
+
+        private void GridViewBorder_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (!_isGridViewEnabled)
+                GridViewBorder.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(45, 45, 48)); // #2D2D30
+        }
+
+        private void GridViewBorder_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            UpdateGridViewBorderColor();
+        }
+
+        private void UpdateGridViewBorderColor()
+        {
+            if (_isGridViewEnabled)
+            {
+                GridViewBorder.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(62, 62, 66)); // #3E3E42
+                GridViewBorder.BorderBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(0, 122, 204)); // #007ACC
+                GridViewText.Foreground = (System.Windows.Media.Brush)FindResource("PrimaryHueMidBrush");
+            }
+            else
+            {
+                GridViewBorder.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(37, 37, 38)); // #252526
+                GridViewBorder.BorderBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(51, 51, 51)); // #333
+                GridViewText.Foreground = (System.Windows.Media.Brush)FindResource("PrimaryHueMidBrush"); // Always user color
+            }
+        }
+
         private void AddTabItem_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             e.Handled = true;
@@ -234,6 +303,18 @@ namespace Skua.App.WPF
         private void InstancesTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.OriginalSource != InstancesTabControl) return;
+
+            if (_isGridViewEnabled && InstancesTabControl.SelectedItem != null && InstancesTabControl.SelectedItem != AddTabItem)
+            {
+                _isGridViewEnabled = false;
+                UpdateGridViewBorderColor();
+                foreach (var info in _tabs.Values)
+                {
+                    if (info.ChildHwnd != IntPtr.Zero)
+                        PostMessage(info.ChildHwnd, WM_SKUA_GRIDVIEW, IntPtr.Zero, IntPtr.Zero);
+                }
+            }
+
             DoReposition();
         }
 
@@ -253,7 +334,8 @@ namespace Skua.App.WPF
             if (!IsLoaded || _isClosing) return;
 
             TabItem selectedTab = InstancesTabControl.SelectedItem as TabItem;
-            if (selectedTab == null || selectedTab == AddTabItem) return;
+            if (selectedTab == AddTabItem) return;
+            if (!_isGridViewEnabled && selectedTab == null) return;
 
             // When minimized, do NOT hide the child windows (SW_HIDE causes Flash to suspend and disconnect sockets).
             // Instead, move them off-screen so they stay "visible" and their message pumps keep running.
@@ -275,38 +357,69 @@ namespace Skua.App.WPF
             int w = Math.Max((int)Math.Round(screenBR.X - screenTL.X), 1);
             int h = Math.Max((int)Math.Round(screenBR.Y - screenTL.Y), 1);
 
-            IntPtr activeChildHwnd = IntPtr.Zero;
-            if (_tabs.TryGetValue(selectedTab, out TabInfo activeInfo) && activeInfo.ChildHwnd != IntPtr.Zero)
-            {
-                activeChildHwnd = activeInfo.ChildHwnd;
-            }
-
             uint baseFlags = SWP_SHOWWINDOW | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS;
 
-            int totalWindows = _tabs.Values.Count(v => v.ChildHwnd != IntPtr.Zero);
-            if (totalWindows == 0) return;
-
-            if (activeChildHwnd != IntPtr.Zero)
+            var activeWindows = _tabs.Values.Where(v => v.ChildHwnd != IntPtr.Zero).ToList();
+            
+            bool isLoading = false;
+            if (_isGridViewEnabled)
             {
-                SetWindowPos(activeChildHwnd, HWND_TOP, x, y, w, h, baseFlags);
+                isLoading = _tabs.Values.Any(v => v.ChildHwnd == IntPtr.Zero);
             }
-
-            foreach (var kvp in _tabs)
+            else
             {
-                if (kvp.Key == selectedTab) continue;
+                if (_tabs.TryGetValue(selectedTab, out TabInfo activeInfo) && activeInfo.ChildHwnd == IntPtr.Zero)
+                    isLoading = true;
+            }
+            LoadingIndicator.Visibility = isLoading ? Visibility.Visible : Visibility.Collapsed;
 
-                TabInfo info = kvp.Value;
-                if (info.ChildHwnd == IntPtr.Zero) continue;
+            if (activeWindows.Count == 0) return;
+
+            if (_isGridViewEnabled)
+            {
+                int n = activeWindows.Count;
+                int cols = (int)Math.Ceiling(Math.Sqrt(n));
+                int rows = (int)Math.Ceiling((double)n / cols);
+                int cellW = w / cols;
+                int cellH = h / rows;
+
+                for (int i = 0; i < n; i++)
+                {
+                    int r = i / cols;
+                    int c = i % cols;
+                    SetWindowPos(activeWindows[i].ChildHwnd, HWND_TOP, x + c * cellW, y + r * cellH, cellW, cellH, baseFlags);
+                }
+            }
+            else
+            {
+                IntPtr activeChildHwnd = IntPtr.Zero;
+                if (_tabs.TryGetValue(selectedTab, out TabInfo activeInfo) && activeInfo.ChildHwnd != IntPtr.Zero)
+                {
+                    activeChildHwnd = activeInfo.ChildHwnd;
+                }
 
                 if (activeChildHwnd != IntPtr.Zero)
                 {
-                    // Stack inactive tabs behind the active one so they stay physically on-screen
-                    SetWindowPos(info.ChildHwnd, activeChildHwnd, x, y, w, h, baseFlags);
+                    SetWindowPos(activeChildHwnd, HWND_TOP, x, y, w, h, baseFlags);
                 }
-                else
+
+                foreach (var kvp in _tabs)
                 {
-                    // Fallback
-                    SetWindowPos(info.ChildHwnd, HWND_TOP, -32000, -32000, w, h, baseFlags);
+                    if (kvp.Key == selectedTab) continue;
+
+                    TabInfo info = kvp.Value;
+                    if (info.ChildHwnd == IntPtr.Zero) continue;
+
+                    if (activeChildHwnd != IntPtr.Zero)
+                    {
+                        // Stack inactive tabs behind the active one so they stay physically on-screen
+                        SetWindowPos(info.ChildHwnd, activeChildHwnd, x, y, w, h, baseFlags);
+                    }
+                    else
+                    {
+                        // Fallback
+                        SetWindowPos(info.ChildHwnd, HWND_TOP, -32000, -32000, w, h, baseFlags);
+                    }
                 }
             }
         }
@@ -398,6 +511,11 @@ namespace Skua.App.WPF
                         SetWindowLong(childHwnd, GWL_EXSTYLE, exStyle);
                         SetWindowLongAny(childHwnd, GWL_HWNDPARENT, _hostHwnd);
                         
+                        if (_isGridViewEnabled)
+                        {
+                            PostMessage(childHwnd, WM_SKUA_GRIDVIEW, new IntPtr(1), IntPtr.Zero);
+                        }
+
                         if (_tabs.Values.Contains(info))
                         {
                             info.ChildHwnd = childHwnd;
@@ -456,8 +574,8 @@ namespace Skua.App.WPF
                 MinWidth = 60, 
                 MaxWidth = 180,
                 Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#1E1E1E")),
-                Foreground = System.Windows.Media.Brushes.White,
-                CaretBrush = System.Windows.Media.Brushes.White,
+                Foreground = (System.Windows.Media.Brush)FindResource("PrimaryHueMidBrush"),
+                CaretBrush = (System.Windows.Media.Brush)FindResource("PrimaryHueMidBrush"),
                 VerticalAlignment = VerticalAlignment.Center,
                 Padding = new Thickness(6, 2, 6, 2),
                 Margin = new Thickness(0, 0, 10, 0),
@@ -473,7 +591,7 @@ namespace Skua.App.WPF
             {
                 Text = tabName, VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, 0, 10, 0),
-                Foreground = System.Windows.Media.Brushes.White
+                Foreground = (System.Windows.Media.Brush)FindResource("PrimaryHueMidBrush")
             };
             Border closeBtn = new Border
             {
@@ -593,6 +711,11 @@ namespace Skua.App.WPF
                                 exStyle |= WS_EX_TOOLWINDOW;
                                 SetWindowLong(childHwnd, GWL_EXSTYLE, exStyle);
                                 SetWindowLongAny(childHwnd, GWL_HWNDPARENT, _hostHwnd);
+
+                                if (_isGridViewEnabled)
+                                {
+                                    PostMessage(childHwnd, WM_SKUA_GRIDVIEW, new IntPtr(1), IntPtr.Zero);
+                                }
 
                                 DoReposition();
 

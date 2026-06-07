@@ -10,7 +10,13 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <TabControl x:Name="InstancesTabControl" Grid.Row="0" Background="Transparent" BorderThickness="0" SelectionChanged="InstancesTabControl_SelectionChanged">
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            
+            <TabControl x:Name="InstancesTabControl" Grid.Column="0" Background="Transparent" BorderThickness="0" SelectionChanged="InstancesTabControl_SelectionChanged">
             <TabControl.Template>
                 <ControlTemplate TargetType="TabControl">
                     <Grid>
@@ -113,9 +119,14 @@
                 </TabItem.Template>
             </TabItem>
         </TabControl>
+
+        <Border x:Name="GridViewBorder" Grid.Column="1" Cursor="Hand" BorderThickness="1,1,1,0" BorderBrush="#333" Background="#252526" Margin="2,0,5,0" CornerRadius="4,4,0,0" PreviewMouseLeftButtonDown="GridViewBorder_PreviewMouseLeftButtonDown" MouseEnter="GridViewBorder_MouseEnter" MouseLeave="GridViewBorder_MouseLeave">
+            <TextBlock x:Name="GridViewText" Text="⊞ Grid View" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryHueMidBrush}" VerticalAlignment="Center" Margin="10,5" />
+        </Border>
+    </Grid>
         
         <Grid Grid.Row="1" Background="#252526">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5">
+            <StackPanel x:Name="LoadingIndicator" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5">
                 <TextBlock Text="Loading Instance..." Foreground="White" FontSize="24" FontWeight="Light" HorizontalAlignment="Center" Margin="0,0,0,10" />
                 <TextBlock Text="Please wait while the game is being initialized" Foreground="#AAA" FontSize="14" HorizontalAlignment="Center" />
             </StackPanel>
