@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Skua.Core.Interfaces;
 using Skua.Core.Models;
 using Skua.Core.Models.Quests;
@@ -74,15 +74,15 @@ public class QuestDataLoaderService : IQuestDataLoaderService
 
                 if (!_wait.ForQuestLoad(i, i + 28, 100))
                 {
-                    progress?.Report("No more quests found.");
-                    break;
+                    progress?.Report($"No quests found in range {i}-{i + 28}. Continuing...");
+                    continue;
                 }
 
                 List<Quest> loadedQuests = _quests.Tree.Where(q => q.ID >= i && q.ID <= i + 28).ToList();
                 if (loadedQuests.Count == 0)
                 {
-                    progress?.Report("No more quests found.");
-                    break;
+                    progress?.Report($"No quests found in range {i}-{i + 28}. Continuing...");
+                    continue;
                 }
 
                 quests.AddRange(loadedQuests.Select(q => ConvertToQuestData(q)));
@@ -169,15 +169,15 @@ public class QuestDataLoaderService : IQuestDataLoaderService
 
                 if (!_wait.ForQuestLoad(i, rangeEnd, 100))
                 {
-                    progress?.Report("No more quests found.");
-                    break;
+                    progress?.Report($"No quests found in range {i}-{rangeEnd}. Continuing...");
+                    continue;
                 }
 
                 List<Quest> loadedQuests = _quests.Tree.Where(q => q.ID >= i && q.ID <= rangeEnd).ToList();
                 if (loadedQuests.Count == 0)
                 {
-                    progress?.Report("No more quests found.");
-                    break;
+                    progress?.Report($"No quests found in range {i}-{rangeEnd}. Continuing...");
+                    continue;
                 }
 
                 quests.AddRange(loadedQuests.Select(q => ConvertToQuestData(q)));
