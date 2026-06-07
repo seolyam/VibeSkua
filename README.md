@@ -1,4 +1,5 @@
 # VibeSkua
+> **Note:** This project is **Vibe Coded**—built entirely through AI-assisted development, and pure momentum.
 
 A feature-rich, high-performance derivative of [auqw/skua](https://github.com/auqw/skua), engineered for advanced automation, stability, and streamlined multi-client management.
 
@@ -26,11 +27,16 @@ The following overview compares the systems and core features between the origin
 
 ## Building the Project
 
-To build the project, navigate to the root folder, right-click, select **"Open in Terminal"**, and run:
+There are two ways to build the project:
+
+1. **Automated:** Navigate to the root folder and run the **BuildRelease.bat** file. Once completed, your output files will be located in a newly created **"Build"** folder within the same directory.
+
+2. **Manual (Terminal):** Navigate to the root folder, right-click, select **"Open in Terminal"**, and run the following command:
 
 ```bash
-dotnet build Skua.sln -c Release -p:WarningLevel=0; mkdir VibeSkua_Release -Force; Get-ChildItem -Path ".\*\bin\Release\net10.0-windows\*" -Recurse | Copy-Item -Destination ".\VibeSkua_Release" -Force"
+dotnet build Skua.sln -c Release -p:WarningLevel=0 --nologo
 ```
+
 ### Copyright & Disclaimer
 
 **Educational & Personal Use Only:** This project is a derivative of [auqw/skua](https://github.com/auqw/skua) and is provided "as-is" under the MIT License. I do not claim ownership of the original assets, game data, or the intellectual property of the game developers.
