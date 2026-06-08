@@ -142,10 +142,11 @@ namespace Skua.App.WPF
             _repositionTimer.Tick += (s, e) => { _repositionTimer.Stop(); DoReposition(); };
 
             Loaded += TabbedHostWindow_Loaded;
-            LocationChanged += (s, e) => DoReposition();
-            SizeChanged += (s, e) => DoReposition();
+            LocationChanged += (s, e) => ScheduleReposition();
+            SizeChanged += (s, e) => ScheduleReposition();
+            DpiChanged += (s, e) => ScheduleReposition();
             StateChanged += (s, e) => DoReposition(); // Immediate for minimize/restore
-            Activated += (s, e) => DoReposition();
+            Activated += (s, e) => ScheduleReposition();
             Closing += OnWindowClosing;
 
             StartPipeServer();
@@ -397,6 +398,8 @@ namespace Skua.App.WPF
                 {
                     activeChildHwnd = activeInfo.ChildHwnd;
                 }
+                
+                Skua.Core.AppStartup.HotKeys.ActiveChildHwnd = activeChildHwnd;
 
                 if (activeChildHwnd != IntPtr.Zero)
                 {

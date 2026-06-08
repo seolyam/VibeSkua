@@ -154,6 +154,7 @@ public sealed partial class App : Application
 
         if (!hasEmbedFlag)
         {
+            Skua.Core.AppStartup.HotKeys.IsHostProcess = true;
             Task.Run(() =>
             {
                 FlashTrustManager.EnsureTrustFile();

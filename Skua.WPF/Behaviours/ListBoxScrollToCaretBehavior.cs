@@ -3,13 +3,14 @@ using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System;
 
 namespace Skua.WPF;
 
 public class ListBoxScrollToCaretBehavior : Behavior<ListBox>
 {
     private ScrollViewer? _scrollViewer;
-    private bool _isScrollDownEnabled;
+    private bool _autoScroll = true;
     private INotifyCollectionChanged? _collectionSource;
 
     protected override void OnAttached()
@@ -30,7 +31,12 @@ public class ListBoxScrollToCaretBehavior : Behavior<ListBox>
             _collectionSource = null;
         }
 
-        _scrollViewer = null;
+        if (_scrollViewer != null)
+        {
+            _scrollViewer.ScrollChanged -= ScrollViewer_ScrollChanged;
+            _scrollViewer = null;
+        }
+        
         base.OnDetaching();
     }
 
@@ -46,6 +52,10 @@ public class ListBoxScrollToCaretBehavior : Behavior<ListBox>
         {
             Border border = (Border)VisualTreeHelper.GetChild(AssociatedObject, 0);
             _scrollViewer = (ScrollViewer)VisualTreeHelper.GetChild(border, 0);
+            if (_scrollViewer != null)
+            {
+                _scrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
+            }
         }
     }
 
@@ -57,7 +67,31 @@ public class ListBoxScrollToCaretBehavior : Behavior<ListBox>
             _collectionSource = null;
         }
 
-        _scrollViewer = null;
+        if (_scrollViewer != null)
+        {
+            _scrollViewer.ScrollChanged -= ScrollViewer_ScrollChanged;
+            _scrollViewer = null;
+        }
+    }
+
+    private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (e.ExtentHeightChange == 0)
+        {
+            if (_scrollViewer!.VerticalOffset == _scrollViewer.ScrollableHeight)
+            {
+                _autoScroll = true;
+            }
+            else
+            {
+                _autoScroll = false;
+            }
+        }
+
+        if (_autoScroll && e.ExtentHeightChange != 0)
+        {
+            _scrollViewer!.ScrollToVerticalOffset(_scrollViewer.ExtentHeight);
+        }
     }
 
     private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -65,9 +99,13 @@ public class ListBoxScrollToCaretBehavior : Behavior<ListBox>
         if (_scrollViewer is null)
             return;
 
-        _isScrollDownEnabled = _scrollViewer.ScrollableHeight > 0 && _scrollViewer.VerticalOffset + _scrollViewer.ViewportHeight < _scrollViewer.ExtentHeight;
-        if (e.Action == NotifyCollectionChangedAction.Add && !_isScrollDownEnabled)
-            _scrollViewer.ScrollToBottom();
+        if (e.Action == NotifyCollectionChangedAction.Add && _autoScroll)
+        {
+            _scrollViewer.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                _scrollViewer.ScrollToVerticalOffset(_scrollViewer.ExtentHeight);
+            }));
+        }
     }
 }
 

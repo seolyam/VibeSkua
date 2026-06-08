@@ -29,6 +29,12 @@ namespace Skua.App.WPF
                 GameContainerCtrl.SetGridView(isGrid);
                 handled = true;
             }
+            else if (msg == Skua.Core.AppStartup.HotKeys.WM_SKUA_HOTKEY)
+            {
+                int actionId = wParam.ToInt32();
+                Skua.Core.AppStartup.HotKeys.ExecuteHotkeyAction(actionId);
+                handled = true;
+            }
             return IntPtr.Zero;
         }
     }

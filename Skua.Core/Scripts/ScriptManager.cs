@@ -91,6 +91,8 @@ public partial class ScriptManager : ObservableObject, IScriptManager, IDisposab
 
     public IScriptOptionContainer? Config { get; set; }
 
+    public string? OverrideStorage { get; set; }
+
     public CancellationTokenSource? ScriptCts { get; private set; }
 
     public bool ShouldExit => ScriptCts?.IsCancellationRequested ?? false;
@@ -685,6 +687,9 @@ public partial class ScriptManager : ObservableObject, IScriptManager, IDisposab
             opts.Options.AddRange((List<IOption>)optsField.GetValue(script)!);
         if (storageField is not null)
             opts.Storage = (string)storageField.GetValue(script)!;
+
+        if (!string.IsNullOrEmpty(OverrideStorage))
+            opts.Storage = OverrideStorage;
         lock (_configuredLock)
         {
             if (dontPreconfField is not null)

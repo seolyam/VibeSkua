@@ -46,6 +46,11 @@ public interface IScriptManager : IScriptStatus, INotifyPropertyChanged
     void LoadScriptConfig(object? script);
 
     /// <summary>
+    /// Gets or sets an optional override for the script options storage identifier.
+    /// </summary>
+    string? OverrideStorage { get; set; }
+
+    /// <summary>
     /// Sets the path of the currently loaded script.
     /// </summary>
     /// <param name="path">The file system path to the script to be marked as loaded. Cannot be null or empty.</param>

@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Skua.Core.Interfaces;
 using Skua.Core.Models.Monsters;
 using Skua.Core.Models.Skills;
@@ -86,7 +86,6 @@ public partial class ScriptAuto : ObservableObject, IScriptAuto
         _ctsAuto?.Cancel();
         _autoTask?.Wait();
         Wait.ForTrue(() => _ctsAuto is null, 20);
-        _autoTask?.Dispose();
         IsRunning = false;
     }
 
@@ -100,7 +99,6 @@ public partial class ScriptAuto : ObservableObject, IScriptAuto
 
         _ctsAuto?.Cancel();
         await Wait.ForTrueAsync(() => _ctsAuto is null && (_autoTask?.IsCompleted ?? true), 40);
-        _autoTask?.Dispose();
         IsRunning = false;
     }
 

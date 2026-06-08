@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics;
 using System.Linq;
+using System;
 using Skua.Core.Models;
 
 namespace Skua.Core.ViewModels;
@@ -19,15 +20,17 @@ public partial class ScriptSchedulerViewModel : BotControlViewModelBase
     private readonly IDiscordWebhookService _discord;
     private readonly ISettingsService _settingsService;
     private readonly IWindowService _windowService;
+    private readonly IDialogService _dialogService;
     private Stopwatch _scriptStopwatch = new();
     
-    public ScriptSchedulerViewModel(IScriptManager manager, IFileDialogService fileDialog, IDiscordWebhookService discord, ISettingsService settingsService, IWindowService windowService) : base("Scheduler")
+    public ScriptSchedulerViewModel(IScriptManager manager, IFileDialogService fileDialog, IDiscordWebhookService discord, ISettingsService settingsService, IWindowService windowService, IDialogService dialogService) : base("Scheduler")
     {
         _manager = manager;
         _fileDialog = fileDialog;
         _discord = discord;
         _settingsService = settingsService;
         _windowService = windowService;
+        _dialogService = dialogService;
         
         StrongReferenceMessenger.Default.Register<ScriptSchedulerViewModel, ScriptStoppedMessage, int>(this, (int)MessageChannels.ScriptStatus, (r, m) => r.OnScriptStopped());
         StrongReferenceMessenger.Default.Register<ScriptSchedulerViewModel, QueueScriptMessage, int>(this, (int)MessageChannels.ScriptStatus, (r, m) => r.OnQueueScript(m));
@@ -37,7 +40,12 @@ public partial class ScriptSchedulerViewModel : BotControlViewModelBase
     {
         if (!string.IsNullOrEmpty(message.Path))
         {
-            ScriptQueue.Add(new ScriptItemViewModel(message.Path));
+            var item = new ScriptItemViewModel(message.Path);
+            int count = ScriptQueue.Count(x => x.Path == message.Path);
+            if (count > 0)
+                item.Name = $"{Path.GetFileNameWithoutExtension(message.Path)} ({count + 1}){Path.GetExtension(message.Path)}";
+            
+            ScriptQueue.Add(item);
         }
     }
 
@@ -61,6 +69,33 @@ public partial class ScriptSchedulerViewModel : BotControlViewModelBase
     {
         if (ScriptQueue.Contains(item))
             ScriptQueue.Remove(item);
+    }
+
+    [RelayCommand]
+    private async Task EditScriptConfig(ScriptItemViewModel item)
+    {
+        if (_manager.ScriptRunning)
+        {
+            _dialogService.ShowMessageBox("Script currently running. Stop the script to change its options.", "Script Running");
+            return;
+        }
+
+        try
+        {
+            object compiled = await Task.Run(() => _manager.Compile(File.ReadAllText(item.Path))!);
+            _manager.OverrideStorage = item.Storage;
+            _manager.LoadScriptConfig(compiled);
+            if (_manager.Config!.Options.Count > 0 || _manager.Config.MultipleOptions.Count > 0)
+                _manager.Config.Configure();
+            else
+                _dialogService.ShowMessageBox("The loaded script has no options to configure.", "No Options");
+            
+            _manager.OverrideStorage = null;
+        }
+        catch (Exception ex)
+        {
+            _dialogService.ShowMessageBox($"Script cannot be configured as it has compilation errors:\r\n{ex}", "Script Error");
+        }
     }
 
     [RelayCommand]
@@ -119,6 +154,7 @@ public partial class ScriptSchedulerViewModel : BotControlViewModelBase
             
             _ = _discord.SendMessageAsync($"🔄 **Scheduler** [{CurrentIndex + 1}/{ScriptQueue.Count}] - Now running: {nextScript.Name}");
             
+            _manager.OverrideStorage = nextScript.Storage;
             _manager.SetLoadedScript(nextScript.Path);
             await _manager.StartScript();
         }
@@ -132,6 +168,8 @@ public partial class ScriptSchedulerViewModel : BotControlViewModelBase
 
     private void OnScriptStopped()
     {
+        _manager.OverrideStorage = null;
+
         if (!IsRunningQueue) return;
 
         if (CurrentIndex < ScriptQueue.Count)
