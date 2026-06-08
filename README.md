@@ -1,7 +1,7 @@
 # VibeSkua
-> **Note:** This project is **Vibe Coded**—built entirely through AI-assisted development, and pure momentum.
+> **Note:** This project is **Vibe Coded**—built through AI-assisted development, and pure momentum.
 
-A feature-rich, high-performance derivative of [auqw/skua](https://github.com/auqw/skua), engineered for advanced automation, stability, and streamlined multi-client management.
+A feature-rich, high-performance fork of [auqw/skua](https://github.com/auqw/skua), made for advanced automation, stability, and streamlined multi-client management.
 
 ## Skua Architecture Comparison
 The following overview compares the systems and core features between the original `auqw/skua` repository and this enhanced fork.
@@ -12,7 +12,7 @@ The following overview compares the systems and core features between the origin
 | :--- | :--- | :--- |
 | **Discord Integration** | Lacked native capability. | `DiscordWebhookService` integrated natively. Supports automated alerts for status changes, rare drops (with screenshots), and live-pings. |
 | **Headless Mode** | Full-screen rendering; high CPU/GPU demand per instance. | Introduced a 1x1 hidden pixel viewport, forcing Flash to bypass geometry/blitting and significantly reducing resource consumption. |
-| **Script Scheduling** | Required manual initialization and supervision. | Added `ScriptSchedulerViewModel` for autonomous script queuing via `QueueScriptMessage` at specific dates and times. |
+| **Script Scheduling** | Required manual initialization and supervision with static script options. | Added autonomous script queuing, supporting independent option profiles and custom display names per instance. |
 | **UI Environment** | Spawned multiple external Win32 windows. | Embedded `EmbeddedMainWindow.xaml` with dynamic SWF patching for a unified, tabbed WPF interface. |
 | **Script Sorting** | Basic navigation options. | Expanded `ScriptRepoViewModel.cs` to support dynamic sorting by Name, Date, or File Size (Ascending/Descending). |
 | **Pause Functionality** | Could only fully Stop scripts, entirely losing current progression. | Built a native `Pause` feature that safely freezes the execution thread in place, letting you interact with menus and seamlessly resume later. |
