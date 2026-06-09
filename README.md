@@ -4,7 +4,7 @@
 A feature-rich, high-performance fork of [auqw/skua](https://github.com/auqw/skua) built from V1.4.3.0, made for advanced automation, stability, and streamlined multi-client management.
 
 ## Skua Architecture Comparison
-The following overview compares the systems and core features between the original `auqw/skua` repository and this enhanced fork.
+The following overview compares the systems and core features between the original `auqw/skua` repository and VibeSkua.
 
 ### Quality of Life & Features
 
