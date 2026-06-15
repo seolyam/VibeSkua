@@ -17,7 +17,11 @@ The following overview compares the systems and core features between the origin
 | **Script Sorting** | Basic navigation options. | Expanded `ScriptRepoViewModel.cs` to support dynamic sorting by Name, Date, or File Size (Ascending/Descending). |
 | **Pause Functionality** | Could only fully Stop scripts, entirely losing current progression. | Built a native `Pause` feature that safely freezes the execution thread in place, letting you interact with menus and seamlessly resume later. |
 | **Smart Grid View** | Required managing dozens of overlapping individual windows. | Consolidates all active accounts into a clean, clutter-free grid inside a single window to monitor a full army at once. |
-| **Instance Dashboard** | Vital farming stats buried deep in external plugin menus. | Pinned a highly readable, native Side Dashboard directly to the game frame to track Kills, Drops, and Quests at a glance. |
+| **Instance Dashboard** | Lacked a native farming statistics dashboard. | Pinned a native Side Dashboard directly to the game frame to track Kills, Drops, and Quests at a glance. |
+| **Function Based Skills** | Relied on static, hardcoded skill sequences without situational awareness. | Integrated a conditional combat engine that evaluates health, cooldowns, and missing auras natively via C# before casting. |
+| **Streamer Mode** | Basic privacy capabilities. | Actively scrubs character names, guild tags, room numbers, and disables chat via background asynchronous Flash injection. |
+| **Auto-Relogin Resilience** | Basic relogin handling prone to freezing during network timeouts. | Redesigned with asynchronous task scheduling, dynamic alternative server selection, and fallback socket injection. |
+| **Army Control** | Required managing each client independently. | Features an integrated Army Control system to instantly broadcast Start/Stop commands, map jumps, and game settings to all active instances simultaneously. |
 
 ### Performance & Engine Optimizations
 
@@ -26,6 +30,10 @@ The following overview compares the systems and core features between the origin
 * **GitHub Script Caching Engine:** Engineered `ScriptDates.json` to store metadata and track SHA hashes. Intelligent API querying conserves rate limits and provides graceful UI fallbacks on connection failure.
 * **Background Connection Stability:** Repositions inactive clients off-screen and uses a `WPF DispatcherTimer` to ping the `isLoggedIn` COM interface every 500ms, preventing OS-level socket throttling.
 * **Active Memory Management:** Introduced `MemoryUtils.cs` to periodically trim the application’s working set, ensuring RAM stability during long, multi-day farming sessions.
+* **Function Based Skills Architecture:** Bypassed the legacy JSON sequence parsing system entirely. Scripters can now inject raw C# classes (`ISkillProvider`) directly into the combat thread at runtime. This eliminates RAM overhead and allows for microsecond-accurate evaluations of aura durations, exact cooldown states, and complex mathematical conditions before broadcasting a skill to Flash.
+* **Asynchronous Flash Injection:** Built a background loop to actively override ActionScript 3 variables (e.g., `world.strMapName`) every 500ms to maintain privacy in Streamer Mode.
+* **Resilient Socket Fallbacks:** Upgraded the relogin protocol to actively poll Flash XML payloads (`mcLogin.sl.iList.numChildren`) instead of static delays, using direct `ConnectIP()` as a safety fallback.
+* **Release Portability:** Updated plugins like Daily Tracker with PostBuild MSBuild targets to automatically compile and bundle into the release folder during `BuildRelease.bat`.
 * And alot more that i cannot remember.
 
 ## Building the Project
