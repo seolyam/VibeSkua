@@ -22,6 +22,7 @@ The following overview compares the systems and core features between the origin
 | **Streamer Mode** | Basic privacy capabilities. | Actively scrubs character names, guild tags, room numbers, and disables chat via background asynchronous Flash injection. |
 | **Auto-Relogin Resilience** | Basic relogin handling prone to freezing during network timeouts. | Redesigned with asynchronous task scheduling, dynamic alternative server selection, and fallback socket injection. |
 | **Army Control** | Required managing each client independently. | Features an integrated Army Control system to instantly broadcast Start/Stop commands, map jumps, and game settings to all active instances simultaneously. |
+| **Custom Hotkeys** | Relied on static, hardcoded keyboard shortcuts. | Replaced static keybinds with a dynamic `IHotKeyService` leveraging `NHotkey.Wpf`. Integrates natively with `ISettingsService` to allow full user customization of core application commands across the entire WPF interface. |
 
 ### Performance & Engine Optimizations
 
@@ -34,6 +35,7 @@ The following overview compares the systems and core features between the origin
 * **Asynchronous Flash Injection:** Built a background loop to actively override ActionScript 3 variables (e.g., `world.strMapName`) every 500ms to maintain privacy in Streamer Mode.
 * **Resilient Socket Fallbacks:** Upgraded the relogin protocol to actively poll Flash XML payloads (`mcLogin.sl.iList.numChildren`) instead of static delays, using direct `ConnectIP()` as a safety fallback.
 * **Release Portability:** Updated plugins like Daily Tracker with PostBuild MSBuild targets to automatically compile and bundle into the release folder during `BuildRelease.bat`.
+* **Velopack Deployment Architecture:** Fully migrated the deployment infrastructure to Velopack. Enables rapid silent installations, automatic desktop shortcut provisioning, and a built-in Updater Tab within the Manager for seamless background auto-updating via the GitHub Releases API.
 * And alot more that i cannot remember.
 
 ## Building the Project
