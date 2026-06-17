@@ -103,20 +103,7 @@ public partial class App : Application
             {
                 Current.Dispatcher.BeginInvoke(() =>
                 {
-                    if (Current.MainWindow != null)
-                    {
-                        Window mainWindow = Current.MainWindow;
-                        if (mainWindow.WindowState == WindowState.Minimized || mainWindow.Visibility != Visibility.Visible)
-                        {
-                            mainWindow.Show();
-                            mainWindow.WindowState = WindowState.Normal;
-                        }
-
-                        mainWindow.Activate();
-                        mainWindow.Topmost = true;
-                        mainWindow.Topmost = false;
-                        mainWindow.Focus();
-                    }
+                    CommunityToolkit.Mvvm.Messaging.StrongReferenceMessenger.Default.Send(new Skua.Core.Messaging.ShowMainWindowMessage());
                 });
             }
         })

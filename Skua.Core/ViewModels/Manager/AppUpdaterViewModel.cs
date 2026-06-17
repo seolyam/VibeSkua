@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Threading.Tasks;
 using Velopack;
+using Velopack.Locators;
 using Velopack.Sources;
 using System.Diagnostics;
 using System;
@@ -32,7 +33,8 @@ public partial class AppUpdaterViewModel : ObservableObject
         ProgressValue = 0;
         try
         {
-            var mgr = new UpdateManager(new GithubSource("https://github.com/NinjaXz/VibeSkua", null, false));
+            var locator = VelopackLocator.CreateDefaultForPlatform(null, null);
+            var mgr = new UpdateManager(new GithubSource("https://github.com/NinjaXz/VibeSkua", null, false), null, locator);
             _updateInfo = await mgr.CheckForUpdatesAsync();
 
             if (_updateInfo == null)
@@ -66,7 +68,8 @@ public partial class AppUpdaterViewModel : ObservableObject
         UpdateStatus = "Downloading update...";
         try
         {
-            var mgr = new UpdateManager(new GithubSource("https://github.com/NinjaXz/VibeSkua", null, false));
+            var locator = VelopackLocator.CreateDefaultForPlatform(null, null);
+            var mgr = new UpdateManager(new GithubSource("https://github.com/NinjaXz/VibeSkua", null, false), null, locator);
             
             Action<int> progressObj = (progress) => 
             {
