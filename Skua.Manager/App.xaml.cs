@@ -52,8 +52,8 @@ public partial class App : Application
             Task.Run(async () =>
             {
                 await Task.Delay(1500);
-                ClientUpdatesViewModel updateVM = Ioc.Default.GetRequiredService<ClientUpdatesViewModel>();
-                await updateVM.Refresh();
+                AppUpdaterViewModel updateVM = Ioc.Default.GetRequiredService<AppUpdaterViewModel>();
+                await updateVM.CheckForUpdateCommand.ExecuteAsync(null);
             });
         }
 
