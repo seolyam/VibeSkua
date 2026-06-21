@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using MaterialDesignColors;
 using MaterialDesignThemes.Wpf;
 using Skua.Core.Interfaces;
@@ -17,7 +17,14 @@ public class ThemeUserSettingsService : ObservableObject
         DefaultThemes = GetThemes(_settings.Get<StringCollection>("DefaultThemes")).ToArray();
         UserThemes = GetThemes(_settings.Get<StringCollection>("UserThemes"));
         ThemeItem current = ThemeItem.FromString(_settings.Get<string>("CurrentTheme"));
-        CurrentTheme = current.Name is "Null" or "Error" ? DefaultThemes[0] : current;
+        if (current.Name is "Null" or "Error")
+        {
+            CurrentTheme = DefaultThemes.Length > 0 ? DefaultThemes[0] : ThemeItem.FromString("Skua,Dark,#FF607D8B,#FF607D8B,#FF000000,#FF000000,true,4.5,Medium,All");
+        }
+        else
+        {
+            CurrentTheme = current;
+        }
         SetTheme(CurrentTheme);
     }
 

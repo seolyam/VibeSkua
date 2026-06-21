@@ -183,6 +183,9 @@ public class UnifiedSettingsService
             }
 
             _root = newRoot;
+            _root.Shared.InitializeDefaults();
+            _root.Client.InitializeDefaults();
+            _root.Manager.InitializeDefaults();
             SaveSettings();
 
             string backupFile = ClientFileSources.SkuaSettingsDIR + ".bak";

@@ -15,7 +15,7 @@ public partial class DailyTrackerWindow : Window
     { 
         2091, 2098, 802, 803, 3075, 3076, 1239, 10047, 
         7156, 7165, 3759, 3827, 3965, 3596, 
-        8152, 8153, 8154, 8245, 8300, 8397, 8692, 8733, 9173, 10301 
+        8152, 8153, 8154, 8245, 8300, 8397, 8692, 8746, 9173, 10301 
     };
 
     public DailyTrackerWindow(IScriptInterface bot)
@@ -37,13 +37,11 @@ public partial class DailyTrackerWindow : Window
                 try 
                 { 
                     // The game might ignore toggleQuestLog without a MouseEvent, or the popup might be named differently.
-                    // Shotgun approach to forcefully hide/close the Quest UI!
-                    try { _bot.Flash.SetGameObject("ui.mcPopup.visible", false); } catch { }
-                    try { _bot.Flash.SetGameObject("ui.ModalStack.visible", false); } catch { }
-                    try { _bot.Flash.CallGameFunction("toggleQuestLog", ""); } catch { } // Pass empty string to bypass ArgumentError
+                    // Shotgun approach to forcefully hide/close the Quest UI without breaking NPC interactions!
                     try { _bot.Flash.CallGameFunction("world.cancelQuest", 0); } catch { }
                     try { _bot.Flash.CallGameFunction("world.toggleQuestLog"); } catch { }
                     try { _bot.Flash.CallGameFunction("ui.mcPopup.onClose"); } catch { }
+                    try { _bot.Flash.CallGameFunction("ui.ModalStack.hide"); } catch { }
                 } 
                 catch { }
             });
@@ -104,7 +102,7 @@ public partial class DailyTrackerWindow : Window
                         new(8300, "Champion Drakath", _bot),
                         new(8397, "Ultra Drago", _bot),
                         new(8692, "Ultra Nulgath", _bot),
-                        new(8733, "Ultra Darkon", _bot),
+                        new(8746, "Ultra Darkon", _bot),
                         new(9173, "Ultra Speaker", _bot),
                         new(10301, "Ultra Gramiel", _bot)
                     }

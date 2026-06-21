@@ -42,6 +42,10 @@ public class ScriptInfo
 
     public int LocalSize => Downloaded ? (int)new FileInfo(LocalFile).Length : 0;
 
+    private string? _cachedSha256;
+    private long _cachedSha256Size = -1;
+    private DateTime _cachedSha256Time = DateTime.MinValue;
+
     public string? LocalSha256
     {
         get
@@ -49,10 +53,17 @@ public class ScriptInfo
             if (!Downloaded) return null;
             try
             {
+                var fileInfo = new FileInfo(LocalFile);
+                if (_cachedSha256 != null && _cachedSha256Size == fileInfo.Length && _cachedSha256Time == fileInfo.LastWriteTimeUtc)
+                    return _cachedSha256;
+
                 using SHA256 sha256 = System.Security.Cryptography.SHA256.Create();
                 using FileStream stream = File.OpenRead(LocalFile);
                 byte[] hash = sha256.ComputeHash(stream);
-                return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                _cachedSha256 = BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                _cachedSha256Size = fileInfo.Length;
+                _cachedSha256Time = fileInfo.LastWriteTimeUtc;
+                return _cachedSha256;
             }
             catch { return null; }
         }

@@ -366,11 +366,16 @@ namespace Skua.App.WPF
             if (MenuStopScripts != null) MenuStopScripts.IsEnabled = true;
         }
 
-        private void MenuItem_LoginAll_Click(object sender, RoutedEventArgs e)
+        private async void MenuItem_LoginAll_Click(object sender, RoutedEventArgs e)
         {
             foreach (var info in _tabs.Values)
+            {
                 if (info.ChildHwnd != IntPtr.Zero)
+                {
                     PostMessage(info.ChildHwnd, WM_SKUA_LOGIN, IntPtr.Zero, IntPtr.Zero);
+                    await Task.Delay(2000);
+                }
+            }
         }
 
         private void MenuItem_LogoutAll_Click(object sender, RoutedEventArgs e)

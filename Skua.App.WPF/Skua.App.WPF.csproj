@@ -11,6 +11,7 @@
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <WithCulture>false</WithCulture>
     <NeutralLanguage>en</NeutralLanguage>
+    <AssemblyName>Skua</AssemblyName>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <RuntimeIdentifiers>win-x64;win-x86</RuntimeIdentifiers>
     <Company>Skua</Company>
@@ -111,10 +112,9 @@
 			<ConfigFiles Include="$(TargetDir)*.config" />
 		</ItemGroup>
 		<Delete Files="@(PdbFiles)" />
-		<Move SourceFiles="$(TargetDir)Skua.App.WPF.exe" DestinationFiles="$(TargetDir)Skua.exe" Condition="'$(Configuration)' == 'Release'" />
 		<MakeDir Directories="$(TargetDir)Assemblies" />
 		<ItemGroup>
-			<FilesToMove Include="$(TargetDir)**\*.*" Exclude="$(TargetDir)Skua.App.WPF.dll;$(TargetDir)*.zip;$(TargetDir)*.swf;$(TargetDir)*.cfg;$(TargetDir)*.pspdb;$(TargetDir)*.pssym;$(TargetDir)*.json;$(TargetDir)*.txt;$(TargetDir)*.exe;$(TargetDir)*.config;$(TargetDir)*.manifest;$(TargetDir)assemblies\**;$(TargetDir)options\**;$(TargetDir)tmp\**;$(TargetDir)tools\**;$(TargetDir)plugins\**;$(TargetDir)Scripts\**;$(TargetDir)FFDec\**" />
+			<FilesToMove Include="$(TargetDir)**\*.*" Exclude="$(TargetDir)Skua.dll;$(TargetDir)*.zip;$(TargetDir)*.swf;$(TargetDir)*.cfg;$(TargetDir)*.pspdb;$(TargetDir)*.pssym;$(TargetDir)*.json;$(TargetDir)*.txt;$(TargetDir)*.exe;$(TargetDir)*.config;$(TargetDir)*.manifest;$(TargetDir)assemblies\**;$(TargetDir)options\**;$(TargetDir)tmp\**;$(TargetDir)tools\**;$(TargetDir)plugins\**;$(TargetDir)Scripts\**;$(TargetDir)FFDec\**" />
 		</ItemGroup>
 		<Move SourceFiles="@(FilesToMove)" DestinationFolder="$(TargetDir)Assemblies\%(RecursiveDir)" />
 		<MakeDir Directories="..\Build\$(PlatformName)" Condition="'$(Configuration)' == 'Release'" />

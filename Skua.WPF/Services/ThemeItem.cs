@@ -1,4 +1,4 @@
-﻿using MaterialDesignThemes.Wpf;
+using MaterialDesignThemes.Wpf;
 using System;
 using System.Globalization;
 using System.Text;
@@ -31,10 +31,18 @@ public class ThemeItem
         }
         themeItem.Name = values[0];
         themeItem.BaseTheme = values[1].ToLower() == "dark" ? Theme.Dark : Theme.Light;
-        themeItem.PrimaryColor = (Color)ColorConverter.ConvertFromString(values[2]);
-        themeItem.SecondaryColor = (Color)ColorConverter.ConvertFromString(values[3]);
-        themeItem.PrimaryForegroundColor = (Color)ColorConverter.ConvertFromString(values[4]);
-        themeItem.SecondaryForegroundColor = (Color)ColorConverter.ConvertFromString(values[5]);
+        try
+        {
+            themeItem.PrimaryColor = (Color)ColorConverter.ConvertFromString(values[2]);
+            themeItem.SecondaryColor = (Color)ColorConverter.ConvertFromString(values[3]);
+            themeItem.PrimaryForegroundColor = (Color)ColorConverter.ConvertFromString(values[4]);
+            themeItem.SecondaryForegroundColor = (Color)ColorConverter.ConvertFromString(values[5]);
+        }
+        catch
+        {
+            themeItem.Name = "Error";
+            return themeItem;
+        }
         if (values.Length <= 6)
         {
             themeItem.UseColorAdjustment = false;

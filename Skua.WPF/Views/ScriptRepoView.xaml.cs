@@ -69,7 +69,7 @@ public partial class ScriptRepoView : UserControl
         {
             foreach (string tag in script.InfoTags)
             {
-                if (KMPSearch(tag, searchScript))
+                if (KMPSearch(tag.ToLower(), searchScript))
                 {
                     flag = true;
                     break;

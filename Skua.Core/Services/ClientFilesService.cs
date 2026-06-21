@@ -1,4 +1,4 @@
-﻿using Skua.Core.Interfaces;
+using Skua.Core.Interfaces;
 using Skua.Core.Models;
 
 namespace Skua.Core.Services;
@@ -64,6 +64,20 @@ public class ClientFilesService : IClientFilesService
             {
                 // ignored
             }
+        }
+
+        string appPluginsDir = Path.Combine(AppContext.BaseDirectory, "plugins");
+        if (Directory.Exists(appPluginsDir))
+        {
+            try
+            {
+                foreach (string file in Directory.GetFiles(appPluginsDir, "*.dll"))
+                {
+                    string destFile = Path.Combine(ClientFileSources.SkuaPluginsDIR, Path.GetFileName(file));
+                    File.Copy(file, destFile, true); 
+                }
+            }
+            catch { }
         }
     }
 }

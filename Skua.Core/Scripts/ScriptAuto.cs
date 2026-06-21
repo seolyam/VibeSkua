@@ -84,9 +84,7 @@ public partial class ScriptAuto : ObservableObject, IScriptAuto
         }
 
         _ctsAuto?.Cancel();
-        _autoTask?.Wait();
-        Wait.ForTrue(() => _ctsAuto is null, 20);
-        IsRunning = false;
+        // Removed blocking Wait() calls to prevent UI thread deadlock
     }
 
     public async ValueTask StopAsync()

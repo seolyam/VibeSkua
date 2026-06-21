@@ -110,10 +110,19 @@ namespace Skua.App.WPF
                     case 9: options.StreamerMode = value; break;
                     case 99:
                         var sm = Ioc.Default.GetRequiredService<ScriptLoaderViewModel>();
-                        if (value && !sm.ScriptManager.ScriptRunning && sm.ToggleScriptCommand.CanExecute(null))
-                            sm.ToggleScriptCommand.Execute(null);
-                        else if (!value && sm.ScriptManager.ScriptRunning && sm.ToggleScriptCommand.CanExecute(null))
-                            sm.ToggleScriptCommand.Execute(null);
+                        var scheduler = Ioc.Default.GetRequiredService<ScriptSchedulerViewModel>();
+                        if (value)
+                        {
+                            if (!sm.ScriptManager.ScriptRunning && sm.ToggleScriptCommand.CanExecute(null))
+                                sm.ToggleScriptCommand.Execute(null);
+                        }
+                        else
+                        {
+                            if (scheduler.IsRunningQueue && scheduler.StopQueueCommand.CanExecute(null))
+                                scheduler.StopQueueCommand.Execute(null);
+                            else if (sm.ScriptManager.ScriptRunning && sm.ToggleScriptCommand.CanExecute(null))
+                                sm.ToggleScriptCommand.Execute(null);
+                        }
                         break;
                 }
                 handled = true;
