@@ -117,7 +117,7 @@ public partial class App : Application
 
     private void CloseManager(App recipient, UpdateFinishedMessage message)
     {
-        Application.Current.Shutdown();
+        Application.Current.Dispatcher.Invoke(() => Application.Current.Shutdown());
     }
 
     public static new App Current => (App)Application.Current;
